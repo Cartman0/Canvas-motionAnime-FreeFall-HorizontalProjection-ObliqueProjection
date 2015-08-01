@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="utf-8">
+  <title>自由落下・水平投射・斜方投射</title>
+  <meta name="description" content="Canvas で、自由落下・水平投射・斜方投射運動のアニメーション">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+  <header>
+    <h1>自由落下・水平投射・斜方投射</h1>
+  </header>
+  <main>
+    <div class="wrapper">
+      <div class="content">
+        <h2>自由落下</h2>
+        <canvas id="canvas-free" width="300" height="300"></canvas>
+      </div>
+      <div class="content">
+        <h2>水平投射</h2>
+        <canvas id="canvas-horizon" width="300" height="300"></canvas>
+      </div>
+      <div class="content">
+        <h2>斜方投射</h2>
+        <canvas id="canvas" width="300" height="300"></canvas>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/motionAnime.js"></script>
+  <script>
+    window.onload = function()
+    {
+      (function(){
+
+        var freeFallAnime = function(canvas_id, canvas_config, motion_config, outside_process){
+          motionAnime(canvas_id, canvas_config, freeFall, motion_config, outside_process );
+
+          function freeFall (motion_config){
+            var ball_pos = {
+              x: motion_config.ball_config.ball_pos0.x,
+              y: motion_config.ball_config.ball_pos0.y
+            };
+            ball_pos.y = motion_config.ball_config.ball_pos0.y - 0.5 * motion_config.g * motion_config.t * motion_config.t;
+            return ball_pos;
+          }
+        }
+
+        freeFallAnime('canvas-free',
+          {
+            globalAlpha: 0.1,
+            fillStyle: 'black'
+          },
+          {
+            ball_config: {
+              fillStyle: 'white',
+              globalAlpha: 1,
+              r: 2,
+              ball_pos0: // 初期位置
+              {
+                x: 150,
+                y: canvas.height
+              },
+              ball_pos:
+              {
+                x: 0,
+                y: 0
+              }
+            },
+            g: 9.8, //重力加速度ss
+            interval_s: 0.05, //50 msごとに描画
+            t0: 0, //初期時間
+            t: 0
+          },
+          function(canvas, motion_config){
+            //ボールが着地したら時間をリセット
+            if (motion_config.ball_config.ball_pos.y < 0){
+              motion_config.t = 0;
+            }
+          });
+
+      })();
+
+      (function(){
+        var horizontalProjectionAnime = function(canvas_id, canvas_config, motion_config, outside_process){
+          motionAnime(canvas_id, canvas_config, horizontalProjection, motion_config, outside_process);
+
+          function horizontalProjection(motion_config) {
+            var ball_pos = {
+              x: 0,
+              y: 0
+            };
+            ball_pos.x = motion_config.ball_config.ball_pos0.x + motion_config.v0 * motion_config.t;
+            ball_pos.y = motion_config.ball_config.ball_pos0.y - 0.5 * motion_config.g * motion_config.t * motion_config.t;
+            return ball_pos;
+          }
+        };
+
+        horizontalProjectionAnime('canvas-horizon',
+          {
+            globalAlpha: 0.1,
+            fillStyle: 'black'
+          },
+          {
+            ball_config: {
+              fillStyle: 'white',
+              globalAlpha: 1,
+              r: 2,
+              ball_pos0: // 初期位置
+              {
+                x: 0,
+                y: 150
+              },
+              ball_pos:
+              {
+                x: 0,
+                y: 0
+              }
+            },
+            v0: 70,
+            g: 9.8, //重力加速度ss
+            interval_s: 0.05, //50 msごとに描画
+            t0: 0, //初期時間
+            t: 0
+          },
+          function(canvas, motion_config){
+            //ボールが着地したら時間をリセット
+            if (motion_config.ball_config.ball_pos.y < 0){
+              motion_config.t = 0;
+            }
+            //ボールが右にはみ出したら左からでてくる
+            if (canvas.width < motion_config.ball_config.ball_pos.x){
+              motion_config.ball_config.ball_pos.x %= canvas.width;
+            }
+        });
+
+      })();
+
+      (function() {
+        var obliqueProjectionAnime = function(canvas_id, canvas_config, motion_config, outside_process){
+          motionAnime(canvas_id, canvas_config, obliqueProjection, motion_config, outside_process);
+
+          function obliqueProjection(motion_config) {
+            var ball_pos = {
+              x: 0,
+              y: 0
+            };
+            ball_pos.x = motion_config.ball_config.ball_pos0.x + motion_config.v0 * Math.cos( motion_config.deg * Math.PI / 180) * motion_config.t;
+
+            ball_pos.y = motion_config.ball_config.ball_pos0.y + motion_config.v0 * Math.sin( motion_config.deg * Math.PI / 180) * motion_config.t - 0.5 * motion_config.g * motion_config.t * motion_config.t;
+
+            return ball_pos;
+          }
+        };
+        obliqueProjectionAnime('canvas',
+          {
+            globalAlpha: 0.1,
+            fillStyle: 'black'
+          },
+          {
+            ball_config: {
+              fillStyle: 'white',
+              globalAlpha: 1,
+              r: 2,
+              ball_pos0: // 初期位置
+              {
+                x: 0,
+                y: 0
+              },
+              ball_pos:
+              {
+                x: 0,
+                y: 0
+              }
+            },
+            v0: 70,
+            g: 9.8, //重力加速度
+            deg: 40, //打ち出し角度
+            interval_s: 0.05, //50 msごとに描画
+            t0: 0, //初期時間
+            t: 0
+          },
+          function(canvas, motion_config){
+            //ボールが右にはみ出したら左からでてくる
+            if (canvas.width < motion_config.ball_config.ball_pos.x)
+            {
+              motion_config.ball_config.ball_pos.x %= canvas.width;
+            }
+            // if (canvas.width < motion_config.ball_config.ball_pos0.x)
+            // {
+            //   motion_config.ball_config.ball_pos0.x -= canvas.width;
+            // }
+
+            //ボールが着地したらバウンド
+            if (motion_config.ball_config.ball_pos.y < 0) {
+              motion_config.t = 0;
+              motion_config.ball_config.ball_pos0.x = motion_config.ball_config.ball_pos.x;
+            }
+          });
+        })();
+      }
+  </script>
+</body>
+
+</html>

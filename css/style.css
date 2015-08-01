@@ -1,0 +1,14 @@
+html, body{
+  width: 100%;
+  background-color: #fafafa;
+}
+header {
+  text-align: center;
+}
+.wrapper {
+  display: flex;
+  justify-content: space-around;
+}
+.content {
+  text-align: center;
+}
